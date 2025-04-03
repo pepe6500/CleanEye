@@ -14,3 +14,8 @@ function getPageHTML() {
 function displayResult(results) {
     document.getElementById('result').innerText = results[0].result;
 }
+
+fetch("http://3.35.204.105:3001/get-users")
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch(error => console.error("Error:", error));
