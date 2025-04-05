@@ -1,6 +1,6 @@
 ﻿{
     "manifest_version": 3,
-    "name": "HTML 가져오기",
+    "name": "Clean Eye",
     "version": "1.0",
     "description": "현재 페이지의 HTML을 가져오는 확장 프로그램",
     "permissions": [
