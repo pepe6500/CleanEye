@@ -1,9 +1,10 @@
 ﻿document.getElementById('getHTML').addEventListener('click', function () {
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+        const currentTabUrl = tabs[0].url;
         chrome.scripting.executeScript({
             target: { tabId: tabs[0].id },
             function: getPageHTML,
-        }, displayResult);
+        }, (results) => displayResult(results, currentTabUrl));  // ✅ URL 같이 넘김
     });
 });
 
@@ -11,34 +12,30 @@ function getPageHTML() {
     return document.documentElement.outerHTML;
 }
 
-function displayResult(results) {
-    extractVisibleTextFromHTML(results[0].result);
-
-    const htmlString = results[0].result; // HTML 문자열
+function displayResult(results, baseUrl) {
+    const htmlString = results[0].result;
     const visibleText = extractVisibleTextFromHTML(htmlString);
-    
-    document.getElementById('result').innerText = visibleText;
+    const imageUrls = extractImageUrlsFromHTML(htmlString, baseUrl);
 
-    // POST 요청으로 배열을 서버에 전송
+    document.getElementById('result').innerText = visibleText.join(' ');
+
+    // 서버로 단어와 이미지 같이 전송
     fetch("http://3.35.204.105:3001/save-words", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({ words: visibleText }) // words라는 키로 배열을 보냄
+        body: JSON.stringify({
+            words: visibleText,
+            images: imageUrls
+        })
     })
         .then(response => {
-            if (!response.ok) {
-                throw new Error("서버 응답 실패");
-            }
+            if (!response.ok) throw new Error("서버 응답 실패");
             return response.json();
         })
-        .then(data => {
-            console.log("서버 응답:", data);
-        })
-        .catch(error => {
-            console.error("전송 오류:", error);
-        });
+        .then(data => console.log("서버 응답:", data))
+        .catch(error => console.error("전송 오류:", error));
 }
 
 function extractVisibleTextFromHTML(htmlString) {
@@ -87,7 +84,26 @@ function extractVisibleTextFromHTML(htmlString) {
     return uniqueWords;
 }
 
+function extractImageUrlsFromHTML(htmlString, baseUrl) {
+    console.log(baseUrl);
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = htmlString;
 
+    const imgTags = tempDiv.querySelectorAll("img");
+    const imageUrls = [];
+
+    imgTags.forEach(img => {
+        let src = img.getAttribute("src");
+        if (src) {
+            // 상대경로 → 절대경로 변환
+            const absoluteUrl = new URL(src, baseUrl).href;
+            imageUrls.push(absoluteUrl);
+        }
+    });
+
+    const uniqueImageUrls = [...new Set(imageUrls)]; // 중복 제거
+    return uniqueImageUrls;
+}
 
 fetch("http://3.35.204.105:3001/get-users")
     .then(response => response.json())
