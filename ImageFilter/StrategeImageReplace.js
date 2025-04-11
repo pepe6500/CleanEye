@@ -1,4 +1,6 @@
-﻿class StrategeImageReplace extends StrategyImageFilteringMethod {
+﻿import StrategyImageFilteringMethod from "./StrategyImageFilteringMethod.js";
+
+export default class StrategeImageReplace extends StrategyImageFilteringMethod {
     /**
      * @private
      * @type {string}

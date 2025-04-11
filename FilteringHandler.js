@@ -2,7 +2,16 @@
 /**
  * FilteringHandler class for coordinating text and image filtering operations
  */
-class FilteringHandler {
+
+import ImageFilter from "./ImageFilter/ImageFilter.js";
+import StrategeTextRemove from "./ImageFilter/StrategeTextRemove.js";
+import StrategeTextRemove from "./ImageFilter/StrategeTextReplace.js";
+import TextFilter from "./TextFilter/TextFilter.js";
+import StrategeTextRemove from "./ImageFilter/StrategeImageRemove.js";
+import StrategeTextRemove from "./ImageFilter/StrategeImageReplace.js";
+import UserSettingManager from "./UserSettingManager.js";
+
+export default class FilteringHandler {
     /**
      * @private
      * @type {ImageFilter}
@@ -121,7 +130,8 @@ class FilteringHandler {
             console.log("Text filtered:", result);
             
             // Here you would typically update the UI with the filtered content
-            // For example: document.getElementById('content').innerHTML = result;
+
+            document.getElementById('content').innerHTML = result;
         } else {
             console.log("Text filtered:", filteredText);
             // Update the UI with the filtered content from the server
@@ -155,7 +165,7 @@ class FilteringHandler {
             console.log("Image filtered:", result);
             
             // Here you would typically update the UI with the filtered content
-            // For example: document.getElementById('imageContainer').innerHTML = result;
+            document.getElementById('imageContainer').innerHTML = result;
         } else {
             console.log("Image filtered:", filteredImageURL);
             // Update the UI with the filtered image from the server

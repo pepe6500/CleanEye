@@ -1,4 +1,8 @@
-﻿class ImageFilter extends Filter {
+﻿import Filter from "../Filter.js";
+import StrategyImageFilteringMethod from "./StrategyImageFilteringMethod.js";
+import StrategeImageReplace from "./StrategeImageReplace.js";
+
+export default class ImageFilter extends Filter {
     /**
      * @private
      * @type {StrategyImageFilteringMethod}
@@ -9,6 +13,7 @@
      * Create a new ImageFilter with default strategy
      */
     constructor() {
+        super();
         // Default to replace strategy
         this.#strategyImageFilteringMethod = new StrategeImageReplace();
     }

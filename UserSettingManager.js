@@ -1,7 +1,7 @@
 ﻿/**
  * UserSettingManager class for managing user settings
  */
-class UserSettingManager {
+export default class UserSettingManager {
     /**
      * @private
      * @type {Map<string, string>}

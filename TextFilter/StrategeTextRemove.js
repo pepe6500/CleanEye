@@ -1,4 +1,6 @@
-﻿class StrategeTextRemove extends StrategyTextFilteringMethod {
+﻿import StrategyTextFilteringMethod from "./StrategyTextFilteringMethod.js";
+
+export default class StrategeTextRemove extends StrategyTextFilteringMethod {
     /**
      * Remove text completely
      * @param {string} filterTargetStr - The target string to filter

@@ -1,4 +1,6 @@
-﻿class StrategeTextReplace extends StrategyTextFilteringMethod {
+﻿import StrategyTextFilteringMethod from "./StrategyTextFilteringMethod.js";
+
+export default class StrategeTextReplace extends StrategyTextFilteringMethod {
     /**
      * @private
      * @type {string}

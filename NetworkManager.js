@@ -1,7 +1,7 @@
 ﻿/**
  * NetworkManager class for handling text and image filtering operations
  */
-class NetworkManager {
+export default class NetworkManager {
     /**
      * @private
      * @type {NetworkManager}

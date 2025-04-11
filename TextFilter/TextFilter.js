@@ -1,4 +1,8 @@
-﻿class TextFilter extends Filter {
+﻿import Filter from "../Filter.js";
+import StrategyTextFilteringMethod from "./StrategyTextFilteringMethod.js";
+import StrategeTextReplace from "./StrategeTextReplace.js";
+
+export default class TextFilter extends Filter {
     /**
      * @private
      * @type {StrategyTextFilteringMethod}
@@ -9,6 +13,7 @@
      * Create a new TextFilter with default strategy
      */
     constructor() {
+        super();
         // Default to replace strategy
         this.#strategyTextFilteringMethod = new StrategeTextReplace();
     }
