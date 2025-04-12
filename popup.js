@@ -8,34 +8,38 @@
     });
 });
 
+
+
 function getPageHTML() {
     return document.documentElement.outerHTML;
 }
 
 function displayResult(results, baseUrl) {
-    const htmlString = results[0].result;
-    const visibleText = extractVisibleTextFromHTML(htmlString);
-    const imageUrls = extractImageUrlsFromHTML(htmlString, baseUrl);
+    //const htmlString = results[0].result;
+    //const visibleText = extractVisibleTextFromHTML(htmlString);
+    //const imageUrls = extractImageUrlsFromHTML(htmlString, baseUrl);
 
-    document.getElementById('result').innerText = visibleText.join(' ');
+    //document.getElementById('result').innerText = visibleText.join(' ');
 
-    // 서버로 단어와 이미지 같이 전송
-    fetch("http://3.35.204.105:3001/save-words", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            words: visibleText,
-            images: imageUrls
-        })
-    })
-        .then(response => {
-            if (!response.ok) throw new Error("서버 응답 실패");
-            return response.json();
-        })
-        .then(data => console.log("서버 응답:", data))
-        .catch(error => console.error("전송 오류:", error));
+    send2Server(results, baseUrl);
+
+    // // 서버로 단어와 이미지 같이 전송
+    // fetch("http://3.35.204.105:3001/save-words", {
+    //     method: "POST",
+    //     headers: {
+    //         "Content-Type": "application/json"
+    //     },
+    //     body: JSON.stringify({
+    //         words: visibleText,
+    //         images: imageUrls
+    //     })
+    // })
+    //     .then(response => {
+    //         if (!response.ok) throw new Error("서버 응답 실패");
+    //         return response.json();
+    //     })
+    //     .then(data => console.log("서버 응답:", data))
+    //     .catch(error => console.error("전송 오류:", error));
 }
 
 function extractVisibleTextFromHTML(htmlString) {
@@ -104,6 +108,34 @@ function extractImageUrlsFromHTML(htmlString, baseUrl) {
     const uniqueImageUrls = [...new Set(imageUrls)]; // 중복 제거
     return uniqueImageUrls;
 }
+
+function send2Server(results, baseUrl) {
+
+    const htmlString = results[0].result;
+    const visibleText = extractVisibleTextFromHTML(htmlString);
+    const imageUrls = extractImageUrlsFromHTML(htmlString, baseUrl);
+
+    fetch("http://3.35.204.105:3001/getDatas", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            words: visibleText,
+            images: imageUrls,
+            dangerScore: 80
+        })
+    })
+        .then(response => {
+            if (!response.ok) throw new Error("서버 응답 실패");
+            return response.json();
+        })
+        .then(data => console.log("서버 응답:", data))
+        .catch(error => console.error("전송 오류:", error));
+}
+
+
+
 
 fetch("http://3.35.204.105:3001/get-users")
     .then(response => response.json())
