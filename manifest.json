@@ -5,6 +5,7 @@
     "type": "module",
     "description": "현재 페이지의 HTML을 가져오는 확장 프로그램",
     "permissions": [
+        "storage",  
         "tabs",
         "activeTab",
         "scripting"
