@@ -70,16 +70,16 @@ export default class NetworkManager {
             },
             body: JSON.stringify({ text })
         })
-        .then(response => response.json())
-        .then(data => {
-            // Assuming the server returns filtered text and a status code
-            this.#textFilterEventList.forEach(event => {
-                event(data.filteredText, data.statusCode);
+            .then(response => response.json())
+            .then(data => {
+                // Assuming the server returns filtered text and a status code
+                this.#textFilterEventList.forEach(event => {
+                    event(data.filteredText, data.statusCode);
+                });
+            })
+            .catch(error => {
+                console.error("Error in TextFilterCTS:", error);
             });
-        })
-        .catch(error => {
-            console.error("Error in TextFilterCTS:", error);
-        });
     }
 
     /**
@@ -124,16 +124,16 @@ export default class NetworkManager {
             },
             body: JSON.stringify({ imageURL })
         })
-        .then(response => response.json())
-        .then(data => {
-            // Assuming the server returns filtered image URL and a status code
-            this.#imageFilterEventList.forEach(event => {
-                event(data.filteredImageURL, data.statusCode);
+            .then(response => response.json())
+            .then(data => {
+                // Assuming the server returns filtered image URL and a status code
+                this.#imageFilterEventList.forEach(event => {
+                    event(data.filteredImageURL, data.statusCode);
+                });
+            })
+            .catch(error => {
+                console.error("Error in ImageFilterCTS:", error);
             });
-        })
-        .catch(error => {
-            console.error("Error in ImageFilterCTS:", error);
-        });
     }
 
     /**
@@ -160,6 +160,43 @@ export default class NetworkManager {
             this.#imageFilterEventList.splice(index, 1);
         }
     }
+
+    /**
+ * Send text, image URLs, and harm level to the server (Client to Server)
+ * @param {string[]} visibleText - The array of texts
+ * @param {string[]} imageUrls - The array of image URLs
+ * @param {number} harmLevel - The calculated harm level
+ */
+    SendContentData(visibleText, imageUrls, harmLevel) {
+        console.log(typeof visibleText);
+        console.log(typeof imageUrls);
+        console.log(typeof harmLevel);
+
+        if (!Array.isArray(visibleText) || !Array.isArray(imageUrls) || typeof harmLevel !== 'number') {
+            console.error("Invalid parameters for SendContentData");
+            return;
+        }
+
+        fetch("http://3.35.204.105:3001/getDatas", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                words: visibleText,
+                images: imageUrls,
+                dangerScore: harmLevel
+            })
+        })
+            .then(response => {
+                if (!response.ok) throw new Error("서버 응답 실패");
+                return response.json();
+            })
+            .then(data => console.log("서버 응답:", data))
+            .catch(error => console.error("전송 오류:", error));
+    }
+
+
 }
 
 // Usage example:
