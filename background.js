@@ -1,4 +1,6 @@
-import mySender from './HTMLParser/mySender.js';
+import NetworkManager from './NetworkManager.js';
+
+const manager = NetworkManager.instance;
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === "PAGE_CONTENT") {
@@ -6,7 +8,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const imageUrls = message.imageUrls;
         chrome.storage.local.get(["harmLevel"], (result) => {
             const harmLevel = result.harmLevel ?? 50;
-            mySender.sendToServer(words, imageUrls, harmLevel);
+            manager.SendContentData(words, imageUrls, harmLevel);
         });
     }
 });
