@@ -25,3 +25,8 @@ let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 console.log("active " + tab.url)
 
 chrome.tabs.sendMessage(tab.id, { action: "changeContent", result: result });
+
+
+
+
+

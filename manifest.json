@@ -2,10 +2,9 @@
     "manifest_version": 3,
     "name": "Clean Eye",
     "version": "1.0",
-    "type": "module",
     "description": "현재 페이지의 HTML을 가져오는 확장 프로그램",
     "permissions": [
-        "storage",  
+        "storage",
         "tabs",
         "activeTab",
         "scripting"
@@ -17,9 +16,19 @@
         "default_popup": "popup.html"
     },
     "content_scripts": [
-      {
-        "matches": ["<all_urls>"],
-        "js": ["content.js"]
-      }
-    ]
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "HTMLParser/htmlParser.js",
+                "content.js"
+            ],
+            "run_at": "document_end"
+        }
+    ],
+    "background": {
+        "service_worker": "background.js",
+        "type": "module"
+    }
 }
