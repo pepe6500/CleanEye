@@ -2,7 +2,7 @@
  * Abstract base class for HTML content filtering
  * @abstract
  */
-export default class Filter {
+class Filter {
     /**
      * Filter HTML content based on a target string
      * @abstract

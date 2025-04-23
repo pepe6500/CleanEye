@@ -2,7 +2,7 @@
 import StrategyImageFilteringMethod from "./StrategyImageFilteringMethod.js";
 import StrategeImageReplace from "./StrategeImageReplace.js";
 
-export default class ImageFilter extends Filter {
+class ImageFilter extends Filter {
     /**
      * @private
      * @type {StrategyImageFilteringMethod}

@@ -1,4 +1,4 @@
-﻿export default class StrategyTextFilteringMethod {
+﻿class StrategyTextFilteringMethod {
     /**
      * Get filtered text based on the strategy
      * @param {string} filterTargetStr - The target string to filter

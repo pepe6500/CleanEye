@@ -4,14 +4,14 @@
  */
 
 import ImageFilter from "./ImageFilter/ImageFilter.js";
-import StrategeTextRemove from "./ImageFilter/StrategeTextRemove.js";
-import StrategeTextRemove from "./ImageFilter/StrategeTextReplace.js";
+import StrategeTextRemove from "./TextFilter/StrategeTextRemove.js";
+import StrategeTextReplace from "./TextFilter/StrategeTextReplace.js";
 import TextFilter from "./TextFilter/TextFilter.js";
-import StrategeTextRemove from "./ImageFilter/StrategeImageRemove.js";
-import StrategeTextRemove from "./ImageFilter/StrategeImageReplace.js";
+import StrategeImageRemove from "./ImageFilter/StrategeImageRemove.js";
+import StrategeImageReplace from "./ImageFilter/StrategeImageReplace.js";
 import UserSettingManager from "./UserSettingManager.js";
 
-export default class FilteringHandler {
+class FilteringHandler {
     /**
      * @private
      * @type {ImageFilter}
@@ -35,7 +35,7 @@ export default class FilteringHandler {
      * @param {UserSettingManager} userSettingManager - The user setting manager
      */
     constructor(userSettingManager) {
-        this.#userSettingManager = userSettingManager || new UserSettingManager();
+        this.#userSettingManager = userSettingManager;
         this.#textFilter = new TextFilter();
         this.#imageFilter = new ImageFilter();
     }
@@ -58,15 +58,8 @@ export default class FilteringHandler {
      * Initialize event handlers
      */
     InitEvents() {
-        // Add network event listeners
-        NetworkManager.instance.AddTextFilterSTCEvent(this.HandleOnTextFilterSTC.bind(this));
-        NetworkManager.instance.AddImageFilterSTCEvent(this.HandleOnImageFilterSTC.bind(this));
-        
         // Add settings event listener
         this.#userSettingManager.AddUpdateSettingValueEvent(this.HandleOnUpdateSettingValue.bind(this));
-        
-        // Add window unload event listener for cleanup
-        window.addEventListener('beforeunload', this.HandleOnExit.bind(this));
         
         console.log("FilteringHandler events initialized");
     }
@@ -105,37 +98,19 @@ export default class FilteringHandler {
 
     /**
      * Handle text filter server-to-client response
-     * @param {string} filteredText - The filtered text from the server
-     * @param {number} statusCode - The status code from the server
+     * @param {string[]} filteredText - The filtered text from the server
      */
-    HandleOnTextFilterSTC(filteredText, statusCode) {
-        if (statusCode !== 200) {
-            console.error(`Text filtering failed with status code: ${statusCode}`);
-            return;
-        }
-        
-        // Apply additional client-side filtering if needed
-        const additionalFilters = this.#userSettingManager.GetValue('additionalTextFilters');
-        if (additionalFilters) {
-            const filterList = additionalFilters.split(',');
-            let result = filteredText;
-            
-            filterList.forEach(filter => {
-                if (filter.trim()) {
-                    result = this.#textFilter.GetFilteredCode(result, filter.trim());
-                }
-            });
-            
-            // Update the DOM or notify the application with the filtered result
-            console.log("Text filtered:", result);
-            
-            // Here you would typically update the UI with the filtered content
-
-            document.getElementById('content').innerHTML = result;
-        } else {
-            console.log("Text filtered:", filteredText);
-            // Update the UI with the filtered content from the server
-        }
+    
+    async HandleOnTextFilterSTC(originPagehtml, filteredText) {
+        let result = originPagehtml;
+        console.error("s " + result);
+        filteredText.forEach(filter => {
+            if (filter.trim()) {
+                result = this.#textFilter.GetFilteredCode(result, filter);
+            }
+        });
+        console.error("e " + result);
+        document.body.innerHTML = result;
     }
 
     /**
@@ -200,8 +175,6 @@ export default class FilteringHandler {
      */
     HandleOnExit(event) {
         // Remove event listeners
-        NetworkManager.instance.RemoveTextFilterSTCEvent(this.HandleOnTextFilterSTC);
-        NetworkManager.instance.RemoveImageFilterSTCEvent(this.HandleOnImageFilterSTC);
         this.#userSettingManager.RemoveUpdateSettingValueEvent(this.HandleOnUpdateSettingValue);
         
         // Save any pending settings
@@ -211,11 +184,12 @@ export default class FilteringHandler {
     }
 }
 
-// Usage example:
-// const userSettingManager = new UserSettingManager();
-// userSettingManager.SetValue('textFilterType', 'replace');
-// userSettingManager.SetValue('textReplacement', '[CENSORED]');
-// userSettingManager.SetValue('imageFilterType', 'remove');
-// 
-// const filteringHandler = new FilteringHandler(userSettingManager);
-// filteringHandler.Init();
+const userSettingManager = new UserSettingManager();
+
+const filteringHandler = new FilteringHandler(userSettingManager);
+filteringHandler.Init();
+
+main (html, result)
+{
+    filteringHandler.HandleOnTextFilterSTC(html, result)
+}
