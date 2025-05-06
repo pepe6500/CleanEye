@@ -834,7 +834,7 @@ const observerCallback = (mutationsList) => {
 const observer = new MutationObserver(observerCallback);
 
 const textServerURL = "";
-const imageServerURL = "ec2-15-165-160-164.ap-northeast-2.compute.amazonaws.com:8000";
+const imageServerURL = "http://ec2-15-165-160-164.ap-northeast-2.compute.amazonaws.com:8000";
 
 window.addEventListener("load", () => {
   observer.observe(document.body, {
@@ -846,6 +846,7 @@ window.addEventListener("load", () => {
 });
 
 function sendWordsToServer(words, rate) {
+  /*
   fetch(textServerURL, {
     method: "POST",
     headers: {
@@ -860,6 +861,7 @@ function sendWordsToServer(words, rate) {
     .catch(err => {
       console.error("[서버 전송 오류]", err);
     });
+    */
 }
 
 function sendImgsToServer(urls, rate) {
