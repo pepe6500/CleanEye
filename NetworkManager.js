@@ -168,9 +168,7 @@ export default class NetworkManager {
  * @param {number} harmLevel - The calculated harm level
  */
     SendContentData(visibleText, imageUrls, harmLevel) {
-        console.log(typeof visibleText);
-        console.log(typeof imageUrls);
-        console.log(typeof harmLevel);
+        console.log(visibleText);
 
         if (!Array.isArray(visibleText) || !Array.isArray(imageUrls) || typeof harmLevel !== 'number') {
             console.error("Invalid parameters for SendContentData");
