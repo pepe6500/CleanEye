@@ -327,45 +327,41 @@
      * @param {string} filterTargetStr - The target string to identify images to filter
      * @returns {string} The filtered HTML content
      */
-    GetFilteredCode(html, filterTargetStr) {
-      if (!html || typeof html !== 'string') {
-        console.error("Invalid HTML parameter");
-        return html;
+    GetFilteredImageCode(html, filterTargetStr) {
+      const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    
+      // 이미지 관련 속성 목록
+      const imageAttributes = [
+        "src", "srcset", "alt", "title", "longdesc"
+      ];
+    
+      let result = html;
+    
+      try {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(result, 'text/html');
+        const regex = new RegExp(escapeRegExp(filterTargetStr), 'g');
+        const replaceText = this.#strategyImageFilteringMethod.GetFilteredText(filterTargetStr);
+    
+        // 모든 <img> 태그를 선택
+        const imgElements = doc.querySelectorAll('img');
+        imgElements.forEach(img => {
+          imageAttributes.forEach(attrName => {
+            if (img.hasAttribute(attrName)) {
+              img.setAttribute(
+                attrName,
+                img.getAttribute(attrName).replace(regex, replaceText)
+              );
+            }
+          });
+        });
+    
+        result = new XMLSerializer().serializeToString(doc);
+      } catch (error) {
+        console.error(`Error processing image attribute "${filterTargetStr}":`, error);
       }
-
-      if (!filterTargetStr || typeof filterTargetStr !== 'string') {
-        console.error("Invalid filter target parameter");
-        return html;
-      }
-
-      // Create a DOM parser to work with the HTML
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, 'text/html');
-
-      // Find all image elements
-      const images = doc.querySelectorAll('img');
-
-      images.forEach(img => {
-        // Check if the image contains the filter target string
-        const src = img.getAttribute('src') || '';
-        const alt = img.getAttribute('alt') || '';
-
-        if (src.includes(filterTargetStr) || alt.includes(filterTargetStr)) {
-          const replacement = this.#strategyImageFilteringMethod.GetFilteredImage(filterTargetStr);
-
-          if (replacement === "") {
-            // Remove the image
-            img.parentNode.removeChild(img);
-          } else {
-            // Replace the image with text
-            const textNode = doc.createTextNode(replacement);
-            img.parentNode.replaceChild(textNode, img);
-          }
-        }
-      });
-
-      // Convert back to HTML string
-      return new XMLSerializer().serializeToString(doc);
+    
+      return result;
     }
 
     /**
@@ -467,7 +463,6 @@
     * @returns {string} The filtered HTML content
     */
     GetFilteredCode(html, filterTargetStr) {
-
       const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
       // URL 관련 속성 목록
@@ -652,7 +647,6 @@
       let result = originPagehtml;
       for (const filterTargetStr of filteredText) {
         if (!filterTargetStr?.trim()) continue;
-
         result = this.#textFilter.GetFilteredCode(result, filterTargetStr);
       }
 
@@ -664,33 +658,14 @@
      * @param {string} filteredImageURL - The filtered image URL from the server
      * @param {number} statusCode - The status code from the server
      */
-    HandleOnImageFilterSTC(filteredImageURL, statusCode) {
-      if (statusCode !== 200) {
-        console.error(`Image filtering failed with status code: ${statusCode}`);
-        return;
+    HandleOnImageFilterSTC(originPagehtml, filteredText) {
+      let result = originPagehtml;
+      for (const filterTargetStr of filteredText) {
+        if (!filterTargetStr?.trim()) continue;
+        result = this.#imageFilter.GetFilteredCode(result, filterTargetStr);
       }
 
-      // Apply additional client-side filtering if needed
-      const additionalFilters = this.#userSettingManager.GetValue('additionalImageFilters');
-      if (additionalFilters) {
-        const filterList = additionalFilters.split(',');
-        let result = `<img src="${filteredImageURL}" alt="Filtered Image">`;
-
-        filterList.forEach(filter => {
-          if (filter.trim()) {
-            result = this.#imageFilter.GetFilteredCode(result, filter.trim());
-          }
-        });
-
-        // Update the DOM or notify the application with the filtered result
-        console.log("Image filtered:", result);
-
-        // Here you would typically update the UI with the filtered content
-        document.getElementById('imageContainer').innerHTML = result;
-      } else {
-        console.log("Image filtered:", filteredImageURL);
-        // Update the UI with the filtered image from the server
-      }
+      document.body.innerHTML = result;
     }
 
     /**
@@ -729,6 +704,7 @@
       console.log("FilteringHandler cleaned up");
     }
   }
+
 const html = document.documentElement.outerHTML;
 const url = window.location.href;
 const words = window.htmlParser.extractVisibleTextFromHTML(html);
@@ -764,5 +740,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.action === "changeContent" && message.result) {
     filteringHandler.HandleOnTextFilterSTC(message.originhtml, message.result);
+  } else if (message.action === "changeImageURL" && message.result)
+  {
+    filteringHandler.HandleOnImageFilterSTC(message.originhtml, message.result);
   }
 });
