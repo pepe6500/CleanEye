@@ -848,6 +848,9 @@ const observerCallback = (mutationsList) => {
 
 const observer = new MutationObserver(observerCallback);
 
+const textServerURL = "";
+const imageServerURL = "ec2-15-165-160-164.ap-northeast-2.compute.amazonaws.com:8000";
+
 window.addEventListener("load", () => {
   observer.observe(document.body, {
     childList: true,
@@ -858,7 +861,7 @@ window.addEventListener("load", () => {
 });
 
 function sendWordsToServer(words, harmLevel) {
-  fetch("http://127.0.0.1:3000/words", {
+  fetch(textServerURL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -875,7 +878,7 @@ function sendWordsToServer(words, harmLevel) {
 }
 
 function sendImgsToServer(imgs, harmLevel) {
-  fetch("http://127.0.0.1:3000/imgs", {
+  fetch(imageServerURL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
