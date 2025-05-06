@@ -1,49 +1,58 @@
-﻿class NetworkManager {
-  /**
-   * @private
-   * @type {NetworkManager}
-   */
-  static #instance = null;
+﻿  class NetworkManager {
+    /**
+     * @private
+     * @type {NetworkManager}
+     */
+    static #instance = null;
 
-  /**
-   * @public
-   * @type {string}
-   */
-  originPagehtml = ""
+    /**
+     * @public
+     * @type {string}
+     */
+    originPagehtml = ""
 
-  /**
-   * @private
-   * @type {string}
-   */
-  static #textProcessServerURL = "";
+    /**
+     * @private
+     * @type {string}
+     */
+    static #textProcessServerURL = "";
 
-  /**
-   * @private
-   * @type {Array<function(string[]): void>}
-   */
-  static #textFilterEventList = [];
+    /**
+     * @private
+     * @type {Array<function(string[]): void>}
+     */
+    static #textFilterEventList = [];
 
-  /**
-   * @private
-   * @type {string}
-   */
-  static #imageProcessServerURL = "";
+    /**
+     * @private
+     * @type {string}
+     */
+    static #imageProcessServerURL = "";
 
-  /**
-   * @private
-   * @type {Array<function(string[]): void>}
-   */
-  static #imageFilterEventList = [];
+    /**
+     * @private
+     * @type {Array<function(string[]): void>}
+     */
+    static #imageFilterEventList = [];
 
-  /**
-   * Private constructor to enforce singleton pattern
-   */
-  constructor() {
-    if (NetworkManager.#instance) {
-      throw new Error("NetworkManager is a singleton. Use NetworkManager.instance instead.");
+    /**
+     * Private constructor to enforce singleton pattern
+     */
+    constructor() {
+      if (NetworkManager.#instance) {
+        throw new Error("NetworkManager is a singleton. Use NetworkManager.instance instead.");
+      }
+      NetworkManager.#instance = this;
     }
-    NetworkManager.#instance = this;
-  }
+
+    /**
+     * Get the singleton instance of NetworkManager
+     * @returns {NetworkManager} The singleton instance
+     */
+    static get instance() {
+      if (!NetworkManager.#instance) {
+        NetworkManager.#instance = new NetworkManager();
+      }
 
   /**
    * Get the singleton instance of NetworkManager
@@ -712,7 +721,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.action === "changeContent" && message.result) {
     filteringHandler.HandleOnTextFilterSTC(message.originhtml, message.result);
-  } else if (message.action === "changeImageURL" && message.result) {
+  } else if (message.action === "changeImageURL" && message.result)
+  {
     filteringHandler.HandleOnImageFilterSTC(message.originhtml, message.result);
   }
 });
@@ -737,6 +747,7 @@ function isGarbageWord(word) {
 
 function extractNewWordsFromText(text) {
   const words = text.trim().split(/\s+/);
+  let result = [];
   words.forEach(word => {
     const cleanWord = word.replace(/[^\p{L}\p{N}]/gu, "");
     if (
@@ -749,6 +760,9 @@ function extractNewWordsFromText(text) {
       sendWordList.push(cleanWord);
     }
   });
+
+  // 서버로 result 전송
+  
 }
 
 function extractImageFromNode(node) {
@@ -876,6 +890,5 @@ function sendImgsToServer(imgs, harmLevel) {
       console.error("[서버 전송 오류]", err);
     });
 }
-
 
 ////////////////////
