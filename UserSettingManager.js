@@ -1,7 +1,7 @@
 ﻿/**
  * UserSettingManager class for managing user settings
  */
-export default class UserSettingManager {
+class UserSettingManager {
     /**
      * @private
      * @type {Map<string, string>}
@@ -81,3 +81,5 @@ export default class UserSettingManager {
         }
     }
 }
+
+window.userSettingManager = new UserSettingManager();

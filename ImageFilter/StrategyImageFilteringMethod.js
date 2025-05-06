@@ -1,4 +1,4 @@
-﻿export default class StrategyImageFilteringMethod {
+﻿class StrategyImageFilteringMethod {
     /**
      * Get filtered image based on the strategy
      * @param {string} filterTargetStr - The target string to filter

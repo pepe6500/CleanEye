@@ -2,7 +2,7 @@
  * Abstract base class for HTML content filtering
  * @abstract
  */
-export default class Filter {
+class Filter {
     /**
      * Filter HTML content based on a target string
      * @abstract
@@ -14,5 +14,5 @@ export default class Filter {
     GetFilteredCode(html, filterTargetStr) {
       throw new Error("GetFilteredCode must be implemented by subclasses");
     }
-  }
+}
   

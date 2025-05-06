@@ -9,28 +9,34 @@ export default class NetworkManager {
     static #instance = null;
 
     /**
-     * @private
+     * @public
      * @type {string}
      */
-    #textProcessServerURL = "";
-
-    /**
-     * @private
-     * @type {Array<function(string, number): void>}
-     */
-    #textFilterEventList = [];
+    originPagehtml = ""
 
     /**
      * @private
      * @type {string}
      */
-    #imageProcessServerURL = "";
+    static #textProcessServerURL = "";
 
     /**
      * @private
-     * @type {Array<function(string, number): void>}
+     * @type {Array<function(string[]): void>}
      */
-    #imageFilterEventList = [];
+    static #textFilterEventList = [];
+
+    /**
+     * @private
+     * @type {string}
+     */
+    static #imageProcessServerURL = "";
+
+    /**
+     * @private
+     * @type {Array<function(string[]): void>}
+     */
+    static #imageFilterEventList = [];
 
     /**
      * Private constructor to enforce singleton pattern
@@ -50,6 +56,7 @@ export default class NetworkManager {
         if (!NetworkManager.#instance) {
             NetworkManager.#instance = new NetworkManager();
         }
+        
         return NetworkManager.#instance;
     }
 
@@ -63,7 +70,7 @@ export default class NetworkManager {
             return;
         }
 
-        fetch(this.#textProcessServerURL, {
+        fetch(NetworkManager.#textProcessServerURL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -73,7 +80,7 @@ export default class NetworkManager {
             .then(response => response.json())
             .then(data => {
                 // Assuming the server returns filtered text and a status code
-                this.#textFilterEventList.forEach(event => {
+                this.textFilterEventList.forEach(event => {
                     event(data.filteredText, data.statusCode);
                 });
             })
@@ -91,8 +98,10 @@ export default class NetworkManager {
             console.error("Event must be a function");
             return;
         }
-        if (!this.#textFilterEventList.includes(event)) {
-            this.#textFilterEventList.push(event);
+        if (!NetworkManager.#textFilterEventList.includes(event)) {
+            console.error("AddTextFilterSTCEvent " + event.name);
+            NetworkManager.#textFilterEventList.push(event);
+            console.error("AddTextFilterSTCEvent lenght " + NetworkManager.#textFilterEventList.length);
         }
     }
 
@@ -101,9 +110,10 @@ export default class NetworkManager {
      * @param {function(string, number): void} event - The event callback function to remove
      */
     RemoveTextFilterSTCEvent(event) {
-        const index = this.#textFilterEventList.indexOf(event);
+        const index = NetworkManager.#textFilterEventList.indexOf(event);
         if (index !== -1) {
-            this.#textFilterEventList.splice(index, 1);
+            NetworkManager.#textFilterEventList.splice(index, 1);
+            console.error("RemoveTextFilterSTCEvent lenght " + NetworkManager.#textFilterEventList.length);
         }
     }
 
@@ -117,7 +127,7 @@ export default class NetworkManager {
             return;
         }
 
-        fetch(this.#imageProcessServerURL, {
+        fetch(NetworkManager.#imageProcessServerURL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -127,7 +137,7 @@ export default class NetworkManager {
             .then(response => response.json())
             .then(data => {
                 // Assuming the server returns filtered image URL and a status code
-                this.#imageFilterEventList.forEach(event => {
+                NetworkManager.#imageFilterEventList.forEach(event => {
                     event(data.filteredImageURL, data.statusCode);
                 });
             })
@@ -145,8 +155,8 @@ export default class NetworkManager {
             console.error("Event must be a function");
             return;
         }
-        if (!this.#imageFilterEventList.includes(event)) {
-            this.#imageFilterEventList.push(event);
+        if (!NetworkManager.#imageFilterEventList.includes(event)) {
+            NetworkManager.#imageFilterEventList.push(event);
         }
     }
 
@@ -155,20 +165,29 @@ export default class NetworkManager {
      * @param {function(string, number): void} event - The event callback function to remove
      */
     RemoveImageFilterSTCEvent(event) {
-        const index = this.#imageFilterEventList.indexOf(event);
+        const index = NetworkManager.#imageFilterEventList.indexOf(event);
         if (index !== -1) {
-            this.#imageFilterEventList.splice(index, 1);
+            NetworkManager.#imageFilterEventList.splice(index, 1);
         }
     }
 
     /**
  * Send text, image URLs, and harm level to the server (Client to Server)
+ * @param {string} originhtml - The array of texts
  * @param {string[]} visibleText - The array of texts
  * @param {string[]} imageUrls - The array of image URLs
  * @param {number} harmLevel - The calculated harm level
  */
-    SendContentData(visibleText, imageUrls, harmLevel) {
+    async SendContentData(originhtml, visibleText, imageUrls, harmLevel) {
         console.log(visibleText);
+        let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (tab)
+        {
+            chrome.tabs.sendMessage(tab.id, { action: "changeContent", originhtml: originhtml, result: visibleText});
+        }
+
+        return; // TODO<김동완>: 서버 작업 후 event 호출 및 return 제거 
+        
 
         if (!Array.isArray(visibleText) || !Array.isArray(imageUrls) || typeof harmLevel !== 'number') {
             console.error("Invalid parameters for SendContentData");
