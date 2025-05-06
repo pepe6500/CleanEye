@@ -179,6 +179,7 @@ export default class NetworkManager {
  * @param {number} harmLevel - The calculated harm level
  */
     async SendContentData(originhtml, visibleText, imageUrls, harmLevel) {
+        console.log(visibleText);
         let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
         if (tab)
         {
