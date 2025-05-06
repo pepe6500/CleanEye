@@ -183,13 +183,3 @@ class FilteringHandler {
         console.log("FilteringHandler cleaned up");
     }
 }
-
-const userSettingManager = new UserSettingManager();
-
-const filteringHandler = new FilteringHandler(userSettingManager);
-filteringHandler.Init();
-
-main (html, result)
-{
-    filteringHandler.HandleOnTextFilterSTC(html, result)
-}

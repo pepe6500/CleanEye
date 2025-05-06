@@ -14,5 +14,5 @@ class Filter {
     GetFilteredCode(html, filterTargetStr) {
       throw new Error("GetFilteredCode must be implemented by subclasses");
     }
-  }
+}
   
