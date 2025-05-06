@@ -1,4 +1,4 @@
-  class NetworkManager {
+﻿  class NetworkManager {
     /**
      * @private
      * @type {NetworkManager}
@@ -704,25 +704,27 @@
     }
   }
 
-const html = document.documentElement.outerHTML;
-const url = window.location.href;
-const words = window.htmlParser.extractVisibleTextFromHTML(html);
-const imageUrls = window.htmlParser.extractImageUrlsFromHTML(html, url);
 const userSettingManager = new UserSettingManager();
 const filteringHandler = new FilteringHandler(userSettingManager);
 
-chrome.runtime.sendMessage({
-  type: "PAGE_CONTENT",
-  html: html,
-  words: words,
-  imageUrls: imageUrls
-}).catch(err => console.error("메시지 전송 오류:", err));
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  console.error(message.result.length);
 
+  if (message.action === "changeContent" && message.result) {
+    filteringHandler.HandleOnTextFilterSTC(message.originhtml, message.result);
+  } else if (message.action === "changeImageURL" && message.result)
+  {
+    filteringHandler.HandleOnImageFilterSTC(message.originhtml, message.result);
+  }
+});
+
+///////////////////////////////////////
 const knownWords = new Set();
 const knownImages = new Set();
 
 function extractNewWordsFromText(text) {
   const words = text.trim().split(/\s+/);
+  let result = [];
   words.forEach(word => {
     const cleanWord = word.replace(/[^\p{L}\p{N}]/gu, "");
     if (
@@ -732,16 +734,12 @@ function extractNewWordsFromText(text) {
     ) {
       knownWords.add(cleanWord);
       console.log("[새 단어]", cleanWord);
+      result.push(cleanWord);
     }
-
-/*
-실시간 변화 감지
-const observer = new MutationObserver(() => {
-  const htmlSnapshot = document.documentElement.outerHTML;
-  chrome.runtime.sendMessage({
-    type: "HTML_SNAPSHOT",
-    html: htmlSnapshot
   });
+
+  // 서버로 result 전송
+  
 }
 
 function extractImageFromNode(node) {
@@ -809,14 +807,3 @@ window.addEventListener("load", () => {
   console.log("[단어 추출 시작]");
 });
 ////////////////////
-
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.error(message.result.length);
-
-  if (message.action === "changeContent" && message.result) {
-    filteringHandler.HandleOnTextFilterSTC(message.originhtml, message.result);
-  } else if (message.action === "changeImageURL" && message.result)
-  {
-    filteringHandler.HandleOnImageFilterSTC(message.originhtml, message.result);
-  }
-});
