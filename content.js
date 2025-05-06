@@ -1,56 +1,62 @@
-﻿const html = document.documentElement.outerHTML;
-const url = window.location.href;
-const words = window.htmlParser.extractVisibleTextFromHTML(html);
-const imageUrls = window.htmlParser.extractImageUrlsFromHTML(html, url);
-
-chrome.runtime.sendMessage({
-  type: "PAGE_CONTENT",
-  words: words,
-  imageUrls: imageUrls
-}).catch(err => console.error("메시지 전송 오류:", err));
-
-///////////////////////////////////////
-
+﻿///////////////////////////////////////
 const knownWords = new Set();
+const knownImages = new Set();
 
 function extractNewWordsFromText(text) {
-  const words = text.trim().split(/\s+/);
-  words.forEach(word => {
-      const cleanWord = word.replace(/[^\p{L}\p{N}]/gu, ""); // 특수문자 제거
-      if (
-          cleanWord &&
-          !knownWords.has(cleanWord) &&
-          !/^\d+$/.test(cleanWord) // 숫자만 있는 경우는 제외
-      ) {
-          knownWords.add(cleanWord);
-          console.log("[새 단어]", cleanWord);
-      }
-  });
+    const words = text.trim().split(/\s+/);
+    words.forEach(word => {
+        const cleanWord = word.replace(/[^\p{L}\p{N}]/gu, "");
+        if (
+            cleanWord &&
+            !knownWords.has(cleanWord) &&
+            !/^\d+$/.test(cleanWord)
+        ) {
+            knownWords.add(cleanWord);
+            console.log("[새 단어]", cleanWord);
+        }
+    });
+}
+
+function extractImageFromNode(node) {
+    if (node.nodeName === "IMG") {
+        const src = node.src;
+        if (src && !knownImages.has(src)) {
+            knownImages.add(src);
+            console.log("[이미지 URL]", src);
+        }
+    }
+
+    // 이미지가 하위 요소로 있는 경우도 처리
+    node.querySelectorAll?.("img").forEach(img => {
+        const src = img.src;
+        if (src && !knownImages.has(src)) {
+            knownImages.add(src);
+            console.log("[이미지 URL]", src);
+        }
+    });
 }
 
 function extractTextFromNode(node) {
-  if (node.nodeType === Node.TEXT_NODE) {
-      // 시각적으로 보이는 텍스트만 처리
-      const parent = node.parentElement;
-      const style = window.getComputedStyle(parent);
+    if (node.nodeType === Node.TEXT_NODE) {
+        const parent = node.parentElement;
+        const style = window.getComputedStyle(parent);
+        const isVisible =
+            style.display !== "none" &&
+            style.visibility !== "hidden" &&
+            style.opacity !== "0";
 
-      const isVisible =
-          style.display !== "none" &&
-          style.visibility !== "hidden" &&
-          style.opacity !== "0";
-
-      if (isVisible) {
-          const text = node.nodeValue.trim();
-          if (text.length > 0) {
-              extractNewWordsFromText(text);
-          }
-      }
-  } else if (node.nodeType === Node.ELEMENT_NODE) {
-      // script, style, noscript 태그 제외
-      if (!["SCRIPT", "STYLE", "NOSCRIPT"].includes(node.tagName)) {
-          node.childNodes.forEach(child => extractTextFromNode(child));
-      }
-  }
+        if (isVisible) {
+            const text = node.nodeValue.trim();
+            if (text.length > 0) {
+                extractNewWordsFromText(text);
+            }
+        }
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+        if (!["SCRIPT", "STYLE", "NOSCRIPT"].includes(node.tagName)) {
+            extractImageFromNode(node);
+            node.childNodes.forEach(child => extractTextFromNode(child));
+        }
+    }
 }
 
 const observerCallback = (mutationsList) => {
@@ -74,8 +80,8 @@ window.addEventListener("load", () => {
     extractTextFromNode(document.body);
     console.log("[단어 추출 시작]");
 });
-
 ////////////////////
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "changeContent" && message.result) {
     document.body.innerHTML = message.result;
