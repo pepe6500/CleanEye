@@ -845,13 +845,13 @@ window.addEventListener("load", () => {
   extractTextFromNode(document.body);
 });
 
-function sendWordsToServer(words, harmLevel) {
+function sendWordsToServer(words, rate) {
   fetch(textServerURL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({ words, harmLevel })
+    body: JSON.stringify({ words, rate })
   })
     .then(res => {
       if (!res.ok) throw new Error("서버 응답 실패");
@@ -862,13 +862,13 @@ function sendWordsToServer(words, harmLevel) {
     });
 }
 
-function sendImgsToServer(imgs, harmLevel) {
+function sendImgsToServer(urls, rate) {
   fetch(imageServerURL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({ imgs, harmLevel })
+    body: JSON.stringify({ urls, rate })
   })
     .then(res => {
       if (!res.ok) throw new Error("서버 응답 실패");
