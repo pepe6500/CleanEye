@@ -53,18 +53,7 @@
       if (!NetworkManager.#instance) {
         NetworkManager.#instance = new NetworkManager();
       }
-
-  /**
-   * Get the singleton instance of NetworkManager
-   * @returns {NetworkManager} The singleton instance
-   */
-  static get instance() {
-    if (!NetworkManager.#instance) {
-      NetworkManager.#instance = new NetworkManager();
     }
-
-    return NetworkManager.#instance;
-  }
 
   /**
    * Send text to the server for filtering (Client to Server)
