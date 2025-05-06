@@ -815,24 +815,20 @@ const observerCallback = (mutationsList) => {
     }
   }
 
-  if (sendImgList.length > 0) {
-    console.log(sendImgList);
-    chrome.storage.local.get(["harmLevel"], (result) => {
-      const harmLevel = result.harmLevel ?? 50;
+
+  chrome.storage.local.get(["harmLevel"], (result) => {
+    const harmLevel = result.harmLevel ?? 50;
+    if (sendImgList.length > 0) {
+      console.log(sendImgList);
       sendImgsToServer(sendImgList, harmLevel);
       sendImgList.length = 0;
-    });
-  }
-  
-  if (sendWordList.length > 0) {
-    console.log(sendWordList);
-    chrome.storage.local.get(["harmLevel"], (result) => {
-      const harmLevel = result.harmLevel ?? 50;
+    }
+    if (sendWordList.length > 0) {
       console.log(sendWordList);
       sendWordsToServer(sendWordList, harmLevel);
       sendWordList.length = 0;
-    });
-  }
+    }
+  });
 };
 
 const observer = new MutationObserver(observerCallback);
