@@ -165,46 +165,6 @@
       NetworkManager.#imageFilterEventList.splice(index, 1);
     }
   }
-
-  /**
-  * Send text, image URLs, and harm level to the server (Client to Server)
-  * @param {string} originhtml - The array of texts
-  * @param {string[]} visibleText - The array of texts
-  * @param {string[]} imageUrls - The array of image URLs
-  * @param {number} harmLevel - The calculated harm level
-  */
-  async SendContentData(originhtml, visibleText, imageUrls, harmLevel) {
-    let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (tab) {
-      chrome.tabs.sendMessage(tab.id, { action: "changeContent", originhtml: originhtml, result: visibleText });
-    }
-
-    return; // TODO<김동완>: 서버 작업 후 event 호출 및 return 제거 
-
-
-    if (!Array.isArray(visibleText) || !Array.isArray(imageUrls) || typeof harmLevel !== 'number') {
-      console.error("Invalid parameters for SendContentData");
-      return;
-    }
-
-    fetch("http://3.35.204.105:3001/getDatas", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        words: visibleText,
-        images: imageUrls,
-        dangerScore: harmLevel
-      })
-    })
-      .then(response => {
-        if (!response.ok) throw new Error("서버 응답 실패");
-        return response.json();
-      })
-      .then(data => console.log("서버 응답:", data))
-      .catch(error => console.error("전송 오류:", error));
-  }
 }
 
 class UserSettingManager {
@@ -706,8 +666,6 @@ const userSettingManager = new UserSettingManager();
 const filteringHandler = new FilteringHandler(userSettingManager);
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.error(message.result.length);
-
   if (message.action === "changeContent" && message.result) {
     filteringHandler.HandleOnTextFilterSTC(message.originhtml, message.result);
   } else if (message.action === "changeImageURL" && message.result)
@@ -815,26 +773,38 @@ const observerCallback = (mutationsList) => {
     }
   }
 
+  console.log("observerCallback ");
 
   chrome.storage.local.get(["harmLevel"], (result) => {
     const harmLevel = result.harmLevel ?? 50;
+    const html = document.documentElement.outerHTML;
     if (sendImgList.length > 0) {
       console.log(sendImgList);
-      sendImgsToServer(sendImgList, harmLevel);
+      // sendImgsToServer(sendImgList, harmLevel);
+      console.error("chrome.runtime.sendMessage PAGE_IMAGE");
+      chrome.runtime.sendMessage({
+        type: "PAGE_IMAGE",
+        html: html,
+        urls: sendImgList,
+        harmLevel: harmLevel
+      }).catch(err => console.error("메시지 전송 오류:", err));
       sendImgList.length = 0;
     }
     if (sendWordList.length > 0) {
       console.log(sendWordList);
-      sendWordsToServer(sendWordList, harmLevel);
+      // sendWordsToServer(sendWordList, harmLevel);
+      chrome.runtime.sendMessage({
+        type: "PAGE_TEXT",
+        html: html,
+        words: sendWordList,
+        harmLevel: harmLevel
+      }).catch(err => console.error("메시지 전송 오류:", err));
       sendWordList.length = 0;
     }
   });
 };
 
 const observer = new MutationObserver(observerCallback);
-
-const textServerURL = "";
-const imageServerURL = "http://ec2-15-165-160-164.ap-northeast-2.compute.amazonaws.com:8000";
 
 window.addEventListener("load", () => {
   observer.observe(document.body, {
@@ -844,41 +814,5 @@ window.addEventListener("load", () => {
   });
   extractTextFromNode(document.body);
 });
-
-function sendWordsToServer(words, rate) {
-  /*
-  fetch(textServerURL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ words, rate })
-  })
-    .then(res => {
-      if (!res.ok) throw new Error("서버 응답 실패");
-      console.log("[모든 단어 서버 전송 완료]");
-    })
-    .catch(err => {
-      console.error("[서버 전송 오류]", err);
-    });
-    */
-}
-
-function sendImgsToServer(urls, rate) {
-  fetch(imageServerURL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ urls, rate })
-  })
-    .then(res => {
-      if (!res.ok) throw new Error("서버 응답 실패");
-      console.log("[모든 단어 서버 전송 완료]");
-    })
-    .catch(err => {
-      console.error("[서버 전송 오류]", err);
-    });
-}
 
 ////////////////////
