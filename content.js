@@ -284,7 +284,7 @@ class ImageFilter extends Filter {
    * @param {string} filterTargetStr - The target string to identify images to filter
    * @returns {string} The filtered HTML content
    */
-  GetFilteredImageCode(html, filterTargetStr) {
+  GetFilteredCode(html, filterTargetStr) {
     const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
     // 이미지 관련 속성 목록
@@ -298,7 +298,7 @@ class ImageFilter extends Filter {
       const parser = new DOMParser();
       const doc = parser.parseFromString(result, 'text/html');
       const regex = new RegExp(escapeRegExp(filterTargetStr), 'g');
-      const replaceText = this.#strategyImageFilteringMethod.GetFilteredText(filterTargetStr);
+      const replaceText = this.#strategyImageFilteringMethod.GetFilteredImage(filterTargetStr);
 
       // 모든 <img> 태그를 선택
       const imgElements = doc.querySelectorAll('img');
@@ -309,6 +309,8 @@ class ImageFilter extends Filter {
               attrName,
               img.getAttribute(attrName).replace(regex, replaceText)
             );
+
+            console.error("img.setAttribute : " + img.getAttribute(attrName) + " / " + regex);
           }
         });
       });
@@ -362,7 +364,7 @@ class StrategeImageReplace extends StrategyImageFilteringMethod {
    * @type {string}
    * @readonly
    */
-  #replaceText = "[Image Filtered]";
+  #replaceText = "https://us.123rf.com/450wm/aquir/aquir1309/aquir130900039/21904413-%EA%B2%80%EC%97%B4-%ED%95%9C-%EB%B9%A8%EA%B0%84-%EC%A0%95%EC%82%AC%EA%B0%81%ED%98%95-%EB%8F%84%EC%9E%A5.jpg";
 
   /**
    * Create a new StrategeImageReplace instance
@@ -667,10 +669,10 @@ const filteringHandler = new FilteringHandler(userSettingManager);
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "changeContent" && message.result) {
-    filteringHandler.HandleOnTextFilterSTC(message.originhtml, message.result);
+    filteringHandler.HandleOnTextFilterSTC(document.documentElement.outerHTML, message.result);
   } else if (message.action === "changeImageURL" && message.result)
   {
-    filteringHandler.HandleOnImageFilterSTC(message.originhtml, message.result);
+    filteringHandler.HandleOnImageFilterSTC(document.documentElement.outerHTML, message.result);
   }
 });
 
@@ -772,8 +774,6 @@ const observerCallback = (mutationsList) => {
       extractTextFromNode(mutation.target);
     }
   }
-
-  console.log("observerCallback ");
 
   chrome.storage.local.get(["harmLevel"], (result) => {
     const harmLevel = result.harmLevel ?? 50;

@@ -1,5 +1,5 @@
 const textServerURL = "http://15.164.235.141:8080/api/text/analyze";
-const imageServerURL = "http://ec2-15-165-160-164.ap-northeast-2.compute.amazonaws.com:8000/detect";
+const imageServerURL = "http://ec2-13-125-237-191.ap-northeast-2.compute.amazonaws.com:8000/detect";
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === "PAGE_TEXT") {
@@ -55,11 +55,12 @@ function sendWordsToServer(html, words, rate) {
       .then( async res => {
         if (!res.ok) throw new Error("서버 응답 실패");
         const data = await res.json();
-        console.log("[모든 URL 서버 전송 완료]");
+        console.log("[모든 URL 서버 전송 완료] " + data.urls);
 
         let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
         if (tab)
         {
+            console.log("[모든 URL 서버 전송 완료] 2");
             chrome.tabs.sendMessage(tab.id, { action: "changeImageURL", originhtml: html, result: data.urls});
         }
       })
