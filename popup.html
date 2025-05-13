@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8" />
   <title>HTML 가져오기</title>
@@ -56,11 +57,33 @@
     input[type="range"] {
       width: 100%;
     }
+
+    select {
+      width: 100%;
+      padding: 6px;
+      font-size: 14px;
+    }
+
+    .blurred {
+      color: transparent;
+      text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+      user-select: none;
+    }
+
+    #exampleOutput {
+      margin-top: 16px;
+      background: white;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
   </style>
 </head>
+
 <body>
   <h2>🔍 Clean Eye 🔍</h2>
-
+  <!-- 유해도 슬라이더 바 -->
   <div class="slider-container">
     <div class="slider-label">
       <span>유해도 설정: <span id="harmLevelValue">50</span></span>
@@ -69,9 +92,23 @@
     <input type="range" min="1" max="100" step="1" value="50" id="harmLevel">
   </div>
 
+  <!-- 검열 방식 선택 -->
+  <div class="censor-method">
+    <label for="censorSelect" style="font-size: 14px; font-weight: bold;">검열 방식 선택:</label>
+    <select id="censorSelect">
+      <option value="asterisks">비속어를 *** 처리</option>
+      <option value="strikethrough">취소선으로 가리기</option>
+      <option value="blank">공백으로 치환</option>
+      <option value="blur">흐리게 처리</option>
+    </select>
+  </div>
+
+  <!-- 필터링 예시 출력 -->
+  <div id="exampleOutput">예시: 이건 진짜 ***이야!</div>
+
   <script src="popup.js"></script>
   <script src="main.js" type="module"></script>
 
-
 </body>
+
 </html>
