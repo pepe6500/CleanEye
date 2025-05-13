@@ -79,3 +79,19 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 ////
+
+// 이미지 필터링 방식 저장
+const imageFilterSelect = document.getElementById("imageFilterSelect");
+
+imageFilterSelect.addEventListener("change", () => {
+  const selectedImageFilter = imageFilterSelect.value;
+  chrome.storage.local.set({ imageFilterMethod: selectedImageFilter });
+});
+
+// 팝업 열릴 때 불러오기
+document.addEventListener("DOMContentLoaded", () => {
+  chrome.storage.local.get(["imageFilterMethod"], (result) => {
+    const savedImageMethod = result.imageFilterMethod ?? "mosaic";
+    imageFilterSelect.value = savedImageMethod;
+  });
+});
