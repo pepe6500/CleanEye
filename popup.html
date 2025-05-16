@@ -1,66 +1,16 @@
 ﻿<!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8" />
   <title>HTML 가져오기</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f4f4f4;
-      margin: 0;
-      padding: 16px;
-      width: 300px;
-      box-sizing: border-box;
-    }
-
-    h2 {
-      margin-top: 0;
-      font-size: 18px;
-      color: #333;
-    }
-
-    .slider-container {
-      margin-top: 16px;
-    }
-
-    .slider-label {
-      font-size: 14px;
-      margin-bottom: 4px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    #harmLevelValue {
-      font-weight: bold;
-    }
-
-    #harmLevelText {
-      font-size: 13px;
-      font-weight: bold;
-      margin-left: 8px;
-    }
-
-    .level-low {
-      color: green;
-    }
-
-    .level-medium {
-      color: orange;
-    }
-
-    .level-high {
-      color: red;
-    }
-
-    input[type="range"] {
-      width: 100%;
-    }
-  </style>
+  <link rel="stylesheet" href="popup.css" />
 </head>
+
 <body>
   <h2>🔍 Clean Eye 🔍</h2>
 
+  <!-- 유해도 슬라이더 바 -->
   <div class="slider-container">
     <div class="slider-label">
       <span>유해도 설정: <span id="harmLevelValue">50</span></span>
@@ -69,9 +19,33 @@
     <input type="range" min="1" max="100" step="1" value="50" id="harmLevel">
   </div>
 
+  <!-- 텍스트 검열 방식 -->
+  <div class="section">
+    <label for="censorSelect">텍스트 검열 방식:</label>
+    <select id="censorSelect">
+      <option value="asterisks">비속어를 *** 처리</option>
+      <option value="strikethrough">취소선으로 가리기</option>
+      <option value="blank">공백으로 치환</option>
+      <option value="blur">흐리게 처리</option>
+    </select>
+    <div id="exampleOutput">예시: 이건 진짜 ***이야!</div>
+  </div>
+
+  <!-- 이미지 필터링 방식 선택 -->
+  <div class="section">
+    <label for="imageFilterSelect">이미지 필터링 방식:</label>
+    <select id="imageFilterSelect">
+      <option value="mosaic">모자이크 처리</option>
+      <option value="replace">이미지 대치</option>
+    </select>
+    <div class="small-note">
+      • <b>모자이크 처리</b>: 원본 이미지를 흐리게 모자이크 처리합니다.<br>
+      • <b>이미지 대치</b>: 원본 이미지를 다른 안전한 이미지로 완전히 교체합니다.
+    </div>
+  </div>
+
   <script src="popup.js"></script>
   <script src="main.js" type="module"></script>
-
 
 </body>
 </html>
