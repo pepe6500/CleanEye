@@ -1,4 +1,4 @@
-const textServerURL = "http://15.164.235.141:8080/api/text/analyze";
+const textServerURL = "http://43.201.18.93:8080/api/text/analyze";
 const imageServerURL = "http://ec2-13-125-237-191.ap-northeast-2.compute.amazonaws.com:8000/detect";
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
