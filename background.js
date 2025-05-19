@@ -1,4 +1,4 @@
-const textServerURL = "http://15.164.235.141:8080/api/text/analyze";
+const textServerURL = "http://43.201.18.93:8080/api/text/analyze";
 const imageServerURL = "http://ec2-13-125-237-191.ap-northeast-2.compute.amazonaws.com:8000/detect";
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -6,65 +6,75 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const html = message.html;
         const words = message.words;
         const harmLevel = message.harmLevel;
-        sendWordsToServer(html, words, harmLevel);
+        const type = message.filteringType;
+        const requestUrl = message.requestUrl;
+        sendWordsToServer(html, words, harmLevel, type, requestUrl);
     }
     else if (message.type === "PAGE_IMAGE") {
         const html = message.html;
         const imageUrls = message.urls;
         const harmLevel = message.harmLevel;
-        sendImgsToServer(html, imageUrls, harmLevel);
+        const type = message.filteringType;
+        const requestUrl = message.requestUrl;
+        sendImgsToServer(html, imageUrls, harmLevel, type, requestUrl);
     }
 });
 
 
-function sendWordsToServer(html, words, rate) {
+function sendWordsToServer(html, words, rate, type, requestUrl) {
     console.error("sendWordsToServer");
 
     fetch(textServerURL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ words, rate })
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ words, rate, type, requestUrl })
     })
-      .then(async res => {
-        if (!res.ok) throw new Error("서버 응답 실패");
-        const data = await res.json();
-        console.log("[모든 단어 서버 전송 완료] res: " + data.words);
-        let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        if (tab)
-        {
-            chrome.tabs.sendMessage(tab.id, { action: "changeContent", originhtml: html, result: data.words});
-        }
-      })
-      .catch(err => {
-        console.error("[서버 전송 오류]", err);
-      });
-  }
-  
-  function sendImgsToServer(html, urls, rate) {
+        .then(async res => {
+            if (!res.ok) throw new Error("서버 응답 실패");
+            const data = await res.json();
+            console.log("[모든 단어 서버 전송 완료] res: " + data.words);
+            let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            if (tab) {
+                chrome.storage.local.get(["censorMethod"], (result) => {
+                    if (result == data.type && tab.url == data.originUrl) {
+                        chrome.tabs.sendMessage(tab.id, { action: "changeContent", originhtml: html, result: data});
+                    }
+                });
+            }
+        })
+        .catch(err => {
+            console.error("[서버 전송 오류]", err);
+        });
+}
+
+function sendImgsToServer(html, urls, rate, type, requestUrl) {
     console.error("sendImgsToServer");
 
     fetch(imageServerURL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ urls, rate })
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ urls, rate, type, requestUrl })
     })
-      .then( async res => {
-        if (!res.ok) throw new Error("서버 응답 실패");
-        const data = await res.json();
-        console.log("[모든 URL 서버 전송 완료] " + data.urls);
+        .then(async res => {
+            if (!res.ok) throw new Error("서버 응답 실패");
+            const data = await res.json();
+            console.log("[모든 URL 서버 전송 완료] " + data.urls);
 
-        let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        if (tab)
-        {
-            console.log("[모든 URL 서버 전송 완료] 2");
-            chrome.tabs.sendMessage(tab.id, { action: "changeImageURL", originhtml: html, result: data.urls});
-        }
-      })
-      .catch(err => {
-        console.error("[서버 전송 오류]", err);
-      });
-  }
+            let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            if (tab) {
+
+                chrome.storage.local.get(["imageFilterMethod"], (result) => {
+                    if (result == data.type && tab.url == data.originUrl) {
+                        chrome.tabs.sendMessage(tab.id, { action: "changeImageURL", originhtml: html, result: data});
+                    }
+                });
+            }
+        })
+        .catch(err => {
+            console.error("[서버 전송 오류]", err);
+        });
+}
