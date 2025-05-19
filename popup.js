@@ -53,8 +53,8 @@ function updateExample() {
         case 'strikethrough':
             censored = original.replace(badWord, `<s>${badWord}</s>`);
             break;
-        case 'blank':
-            censored = original.replace(badWord, '');
+        case 'AI':
+            censored = original.replace(badWord, '나쁜 사람');
             break;
         case 'blur':
             censored = original.replace(badWord, `<span class="blurred">${badWord}</span>`);

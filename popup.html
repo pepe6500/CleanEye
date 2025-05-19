@@ -25,7 +25,7 @@
     <select id="censorSelect">
       <option value="asterisks">비속어를 *** 처리</option>
       <option value="strikethrough">취소선으로 가리기</option>
-      <option value="blank">공백으로 치환</option>
+      <option value="AI">AI 텍스트 대치</option>
       <option value="blur">흐리게 처리</option>
     </select>
     <div id="exampleOutput">예시: 이건 진짜 ***이야!</div>
@@ -36,10 +36,12 @@
     <label for="imageFilterSelect">이미지 필터링 방식:</label>
     <select id="imageFilterSelect">
       <option value="mosaic">모자이크 처리</option>
+      <option value="blur">블러 처리</option>
       <option value="replace">이미지 대치</option>
     </select>
     <div class="small-note">
-      • <b>모자이크 처리</b>: 원본 이미지를 흐리게 모자이크 처리합니다.<br>
+      • <b>모자이크 처리</b>: 원본 이미지를 모자이크 처리합니다.<br>
+      • <b>이미지 블러</b>: 원본 이미지를 블러 처리합니다.
       • <b>이미지 대치</b>: 원본 이미지를 다른 안전한 이미지로 완전히 교체합니다.
     </div>
   </div>
