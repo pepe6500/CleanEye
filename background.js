@@ -6,18 +6,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const html = message.html;
         const words = message.words;
         const harmLevel = message.harmLevel;
-        sendWordsToServer(html, words, harmLevel);
+        const type = message.filteringType;
+        const requestUrl = message.requestUrl;
+        sendWordsToServer(html, words, harmLevel, type, requestUrl);
     }
     else if (message.type === "PAGE_IMAGE") {
         const html = message.html;
         const imageUrls = message.urls;
         const harmLevel = message.harmLevel;
-        sendImgsToServer(html, imageUrls, harmLevel);
+        const type = message.filteringType;
+        const requestUrl = message.requestUrl;
+        sendImgsToServer(html, imageUrls, harmLevel, type, requestUrl);
     }
 });
 
 
-function sendWordsToServer(html, words, rate, type, originUrl) {
+function sendWordsToServer(html, words, rate, type, requestUrl) {
     console.error("sendWordsToServer");
 
     fetch(textServerURL, {
@@ -25,7 +29,7 @@ function sendWordsToServer(html, words, rate, type, originUrl) {
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({ words, rate, type, originUrl })
+        body: JSON.stringify({ words, rate, type, requestUrl })
     })
         .then(async res => {
             if (!res.ok) throw new Error("서버 응답 실패");
@@ -45,7 +49,7 @@ function sendWordsToServer(html, words, rate, type, originUrl) {
         });
 }
 
-function sendImgsToServer(html, urls, rate, type, originUrl) {
+function sendImgsToServer(html, urls, rate, type, requestUrl) {
     console.error("sendImgsToServer");
 
     fetch(imageServerURL, {
@@ -53,7 +57,7 @@ function sendImgsToServer(html, urls, rate, type, originUrl) {
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({ urls, rate, type, originUrl })
+        body: JSON.stringify({ urls, rate, type, requestUrl })
     })
         .then(async res => {
             if (!res.ok) throw new Error("서버 응답 실패");

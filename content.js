@@ -900,10 +900,12 @@ const observerCallback = (mutationsList) => {
         }
     }
 
-    chrome.storage.local.get(["harmLevel"], (result) => {
+    chrome.storage.local.get(["harmLevel", "censorMethod", "imageFilterMethod"], (result) => {
         const harmLevel = result.harmLevel ?? 50;
         const html = document.documentElement.outerHTML;
+        const requestUrl = document.URL;
         if (sendImgList.length > 0) {
+            const filteringType = result.imageFilterMethod ?? 1;
             console.log(sendImgList);
             // sendImgsToServer(sendImgList, harmLevel);
             console.error("chrome.runtime.sendMessage PAGE_IMAGE");
@@ -911,18 +913,23 @@ const observerCallback = (mutationsList) => {
                 type: "PAGE_IMAGE",
                 html: html,
                 urls: sendImgList,
-                harmLevel: harmLevel
+                harmLevel: harmLevel,
+                filteringType: filteringType,
+                requestUrl: requestUrl
             }).catch(err => console.error("메시지 전송 오류:", err));
             sendImgList.length = 0;
         }
         if (sendWordList.length > 0) {
+            const filteringType = result.censorMethod ?? 1;
             console.log(sendWordList);
             // sendWordsToServer(sendWordList, harmLevel);
             chrome.runtime.sendMessage({
                 type: "PAGE_TEXT",
                 html: html,
                 words: sendWordList,
-                harmLevel: harmLevel
+                harmLevel: harmLevel,
+                filteringType: filteringType,
+                requestUrl: requestUrl
             }).catch(err => console.error("메시지 전송 오류:", err));
             sendWordList.length = 0;
         }
