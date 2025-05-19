@@ -64,10 +64,15 @@ function updateExample() {
     exampleOutput.innerHTML = `예시: ${censored}`;
 }
 
-censorSelect.addEventListener("change", () => {
+censorSelect.addEventListener("change", async () => {
     const selectedMethod = parseInt(censorSelect.value, 10);
     chrome.storage.local.set({ censorMethod: selectedMethod });
     updateExample();
+    let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (tab)
+    {
+        chrome.tabs.sendMessage(tab.id, { action: "changeSelectedMethod", result: selectedMethod});
+    }
 });
 
 
@@ -83,9 +88,14 @@ document.addEventListener("DOMContentLoaded", () => {
 // 이미지 필터링 방식 저장
 const imageFilterSelect = document.getElementById("imageFilterSelect");
 
-imageFilterSelect.addEventListener("change", () => {
+imageFilterSelect.addEventListener("change", async () => {
   const selectedImageFilter = parseInt(imageFilterSelect.value, 10);
   chrome.storage.local.set({ imageFilterMethod: selectedImageFilter });
+    let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (tab)
+    {
+        chrome.tabs.sendMessage(tab.id, { action: "changeImageFilterMethod", result: selectedImageFilter});
+    }
 });
 
 // 팝업 열릴 때 불러오기
