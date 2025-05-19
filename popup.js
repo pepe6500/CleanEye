@@ -54,10 +54,10 @@ function updateExample() {
             censored = original.replace(badWord, `<s>${badWord}</s>`);
             break;
         case 3:
-            censored = original.replace(badWord, '나쁜 사람');
+            censored = original.replace(badWord, `<span class="blurred">${badWord}</span>`);
             break;
         case 4:
-            censored = original.replace(badWord, `<span class="blurred">${badWord}</span>`);
+            censored = original.replace(badWord, '나쁜 사람');
             break;
     }
 
