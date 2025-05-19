@@ -671,7 +671,7 @@ class FilteringHandler {
      * Update text filtering method based on user settings
      */
     UpdateTextFilteringMethod() {
-        chrome.storage.local.get(["imageFilterMethod"], (result) => {
+        chrome.storage.local.get(["censorMethod"], (result) => {
             const textFilterType = result;
             const textReplacement = '***';
 
@@ -695,27 +695,21 @@ class FilteringHandler {
      * Update image filtering method based on user settings
      */
     UpdateImageFilteringMethod() {
-        const imageFilterType = this.#userSettingManager.GetValue('imageFilterType') || 'replace';
-        const imageReplacement = this.#userSettingManager.GetValue('imageReplacement') || '[Image Filtered]';
 
-        if (imageFilterType === 'remove') {
-        } else {
-        }
         chrome.storage.local.get(["imageFilterMethod"], (result) => {
-            const textFilterType = result;
-            const textReplacement = '***';
+            const imageFilterType = result;
 
-            if (textFilterType === 1) {
-                this.#imageFilter.SetStrategyImageFilteringMethod(new StrategeImageReplace(imageReplacement));
-            } else if (textFilterType === 2) {
+            if (imageFilterType === 1) {
+                this.#imageFilter.SetStrategyImageFilteringMethod(new StrategeImageReplace());
+            } else if (imageFilterType === 2) {
                 this.#textFilter.SetStrategyTextFilteringMethod(new StrategeImageReplaceByServerValue());
-            } else if (textFilterType === 3) {
+            } else if (imageFilterType === 3) {
                 this.#textFilter.SetStrategyTextFilteringMethod(new StrategeImageReplaceByServerValue());
             } else {
-                this.#imageFilter.SetStrategyImageFilteringMethod(new StrategeImageReplace(imageReplacement));
+                this.#imageFilter.SetStrategyImageFilteringMethod(new StrategeImageReplace());
             }
 
-            console.log(`Text filtering method updated to: ${textFilterType}`);
+            console.log(`Text filtering method updated to: ${imageFilterType}`);
         });
 
         
