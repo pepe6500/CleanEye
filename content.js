@@ -441,6 +441,8 @@ class TextFilter extends Filter {
     * @returns {string} The filtered HTML content
     */
     GetFilteredCode(html, filterTargetStr, data) {
+        console.error("GetFilteredCode: " + filterTargetStr);
+
         const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
         // URL 관련 속성 목록
@@ -672,7 +674,7 @@ class FilteringHandler {
      */
     UpdateTextFilteringMethod() {
         chrome.storage.local.get(["censorMethod"], (result) => {
-            const textFilterType = result;
+            const textFilterType = result.censorMethod;
             const textReplacement = '***';
 
             if (textFilterType === 1) {
@@ -695,9 +697,8 @@ class FilteringHandler {
      * Update image filtering method based on user settings
      */
     UpdateImageFilteringMethod() {
-
         chrome.storage.local.get(["imageFilterMethod"], (result) => {
-            const imageFilterType = result;
+            const imageFilterType = result.imageFilterMethod;
 
             if (imageFilterType === 1) {
                 this.#imageFilter.SetStrategyImageFilteringMethod(new StrategeImageReplace());
@@ -711,10 +712,6 @@ class FilteringHandler {
 
             console.log(`Text filtering method updated to: ${imageFilterType}`);
         });
-
-        
-
-        console.log(`Image filtering method updated to: ${imageFilterType}`);
     }
 
     async HandleOnTextFilterSTC(originPagehtml, data) {
@@ -784,6 +781,8 @@ const userSettingManager = new UserSettingManager();
 const filteringHandler = new FilteringHandler(userSettingManager);
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    console.error(message.action + " " + message.result == null);
+
     if (message.action === "changeContent" && message.result) {
         filteringHandler.HandleOnTextFilterSTC(document.documentElement.outerHTML, message.result);
     } else if (message.action === "changeImageURL" && message.result) {
@@ -900,9 +899,6 @@ const observerCallback = (mutationsList) => {
         const requestUrl = document.URL;
         if (sendImgList.length > 0) {
             const filteringType = result.imageFilterMethod ?? 1;
-            console.log(sendImgList);
-            // sendImgsToServer(sendImgList, harmLevel);
-            console.error("chrome.runtime.sendMessage PAGE_IMAGE");
             chrome.runtime.sendMessage({
                 type: "PAGE_IMAGE",
                 html: html,

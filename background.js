@@ -38,7 +38,7 @@ function sendWordsToServer(html, words, rate, type, requestUrl) {
             let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
             if (tab) {
                 chrome.storage.local.get(["censorMethod"], (result) => {
-                    if (result == data.type && tab.url == data.originUrl) {
+                    if (result.censorMethod == data.type && tab.url == data.requestUrl) {
                         chrome.tabs.sendMessage(tab.id, { action: "changeContent", originhtml: html, result: data});
                     }
                 });
@@ -68,8 +68,8 @@ function sendImgsToServer(html, urls, rate, type, requestUrl) {
             if (tab) {
 
                 chrome.storage.local.get(["imageFilterMethod"], (result) => {
-                    if (result == data.type && tab.url == data.originUrl) {
-                        chrome.tabs.sendMessage(tab.id, { action: "changeImageURL", originhtml: html, result: data});
+                    if (result.imageFilterMethod == data.type && tab.url == data.requestUrl) {
+                        chrome.tabs.sendMessage(tab.id, { action: "changeImageURL", requestUrl: html, result: data});
                     }
                 });
             }
