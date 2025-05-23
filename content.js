@@ -717,7 +717,7 @@ class FilteringHandler {
     async HandleOnTextFilterSTC(originPagehtml, data) {
         let result = originPagehtml;
 
-        for (const filterTargetStr of data.urls) {
+        for (const filterTargetStr of data.words) {
             if (!filterTargetStr?.trim()) continue;
             result = this.#textFilter.GetFilteredCode(result, filterTargetStr, data);
         }
@@ -781,7 +781,7 @@ const userSettingManager = new UserSettingManager();
 const filteringHandler = new FilteringHandler(userSettingManager);
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    console.error(message.action + " " + message.result == null);
+    console.error(message.action + " " + (message.result == null));
 
     if (message.action === "changeContent" && message.result) {
         filteringHandler.HandleOnTextFilterSTC(document.documentElement.outerHTML, message.result);
@@ -911,8 +911,6 @@ const observerCallback = (mutationsList) => {
         }
         if (sendWordList.length > 0) {
             const filteringType = result.censorMethod ?? 1;
-            console.log(sendWordList);
-            // sendWordsToServer(sendWordList, harmLevel);
             chrome.runtime.sendMessage({
                 type: "PAGE_TEXT",
                 html: html,
