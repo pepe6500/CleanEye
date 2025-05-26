@@ -459,7 +459,14 @@ class TextFilter extends Filter {
             const replaceText = this.#strategyTextFilteringMethod.GetFilteredText(filterTargetStr, data);
             const processNode = (node) => {
                 if (node.nodeType === Node.TEXT_NODE) {
-                    node.textContent = node.textContent.replace(regex, replaceText);
+                    // 텍스트 노드를 span으로 대체
+                    const tempDiv = doc.createElement('div');
+                    tempDiv.innerHTML = node.textContent.replace(regex, replaceText);
+                    // 새로 생성된 노드들로 교체
+                    Array.from(tempDiv.childNodes).forEach(newNode => {
+                        node.parentNode.insertBefore(newNode, node);
+                    });
+                    node.parentNode.removeChild(node);
                 }
                 else if (node.nodeType === Node.ELEMENT_NODE) {
                     // 속성 처리 (URL 속성은 제외)
@@ -703,9 +710,9 @@ class FilteringHandler {
             if (imageFilterType === 1) {
                 this.#imageFilter.SetStrategyImageFilteringMethod(new StrategeImageReplace());
             } else if (imageFilterType === 2) {
-                this.#textFilter.SetStrategyTextFilteringMethod(new StrategeImageReplaceByServerValue());
+                this.#imageFilter.SetStrategyTextFilteringMethod(new StrategeImageReplaceByServerValue());
             } else if (imageFilterType === 3) {
-                this.#textFilter.SetStrategyTextFilteringMethod(new StrategeImageReplaceByServerValue());
+                this.#imageFilter.SetStrategyTextFilteringMethod(new StrategeImageReplaceByServerValue());
             } else {
                 this.#imageFilter.SetStrategyImageFilteringMethod(new StrategeImageReplace());
             }
@@ -927,6 +934,8 @@ const observerCallback = (mutationsList) => {
 const observer = new MutationObserver(observerCallback);
 
 window.addEventListener("load", () => {
+    filteringHandler.UpdateTextFilteringMethod();
+    filteringHandler.UpdateImageFilteringMethod();
     observer.observe(document.body, {
         childList: true,
         subtree: true,
