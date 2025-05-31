@@ -804,7 +804,6 @@ function isGarbageWord(word) {
 
 function extractNewWordsFromText(text) {
     const words = text.trim().split(/\s+/);
-    let result = [];
     words.forEach(word => {
         const cleanWord = word.replace(/[^\p{L}\p{N}]/gu, "");
         if (
