@@ -385,10 +385,8 @@ class StrategeImageReplaceByServerValue extends StrategyImageFilteringMethod {
 
     GetFilteredImage(filterTargetStr, data) {
         var i;
-        for (i = 0; i < data.urls.length; i++)
-        {
-            if (data.urls[i] == filterTargetStr)
-            {
+        for (i = 0; i < data.urls.length; i++) {
+            if (data.urls[i] == filterTargetStr) {
                 return data.filteredUrls[i];
             }
         }
@@ -602,10 +600,8 @@ class StrategeTextReplaceByServerValue extends StrategyTextFilteringMethod {
 
     GetFilteredText(filterTargetStr, data) {
         var i;
-        for (i = 0; i < data.words.length; i++)
-        {
-            if (data.words[i] == filterTargetStr)
-            {
+        for (i = 0; i < data.words.length; i++) {
+            if (data.words[i] == filterTargetStr) {
                 return data.filteredWords[i];
             }
         }
@@ -839,11 +835,19 @@ function extractTextFromNode(node) {
     if (node.nodeType === Node.TEXT_NODE) {
         const parent = node.parentElement;
         if (!parent) return;
+
         const style = window.getComputedStyle(parent);
         const isVisible =
             style.display !== "none" &&
             style.visibility !== "hidden" &&
             style.opacity !== "0";
+
+        if (
+            parent.tagName === "S" ||
+            style.filter.includes("blur")
+        ) {
+            return; // 취소선, 블러 텍스트 무시
+        }
 
         if (isVisible) {
             const text = node.nodeValue.trim();
