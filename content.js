@@ -284,7 +284,7 @@ class ImageFilter extends Filter {
      * @param {string} filterTargetStr - The target string to identify images to filter
      * @returns {string} The filtered HTML content
      */
-    GetFilteredCode(html, filterTargetStr, data) {
+    GetFilteredCode(filterTargetStr, data) {
         const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
         // 이미지 관련 속성 목록
@@ -292,16 +292,12 @@ class ImageFilter extends Filter {
             "src", "srcset", "alt", "title", "longdesc"
         ];
 
-        let result = html;
-
         try {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(result, 'text/html');
             const regex = new RegExp(escapeRegExp(filterTargetStr), 'g');
             const replaceText = this.#strategyImageFilteringMethod.GetFilteredImage(filterTargetStr, data);
 
-            // 모든 <img> 태그를 선택
-            const imgElements = doc.querySelectorAll('img');
+            // 실제 DOM에서 모든 <img> 태그를 선택
+            const imgElements = document.querySelectorAll('img');
             imgElements.forEach(img => {
                 imageAttributes.forEach(attrName => {
                     if (img.hasAttribute(attrName)) {
@@ -309,18 +305,12 @@ class ImageFilter extends Filter {
                             attrName,
                             img.getAttribute(attrName).replace(regex, replaceText)
                         );
-
-                        console.error("img.setAttribute : " + img.getAttribute(attrName) + " / " + regex);
                     }
                 });
             });
-
-            result = new XMLSerializer().serializeToString(doc);
         } catch (error) {
             console.error(`Error processing image attribute "${filterTargetStr}":`, error);
         }
-
-        return result;
     }
 
     /**
@@ -440,7 +430,7 @@ class TextFilter extends Filter {
     * @param {string} filterTargetStr - The target string to identify text to filter
     * @returns {string} The filtered HTML content
     */
-    GetFilteredCode(html, filterTargetStr, data) {
+    GetFilteredCode(filterTargetStr, data) {
         console.error("GetFilteredCode: " + filterTargetStr);
 
         const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -450,23 +440,23 @@ class TextFilter extends Filter {
             "href", "src", "srcset", "action", "data", "poster", "formaction", "cite", "longdesc", "usemap", "manifest"
         ];
 
-        let result = html;
-
         try {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(result, 'text/html');
             const regex = new RegExp(escapeRegExp(filterTargetStr), 'g');
             const replaceText = this.#strategyTextFilteringMethod.GetFilteredText(filterTargetStr, data);
+
+            // 재귀적으로 실제 DOM을 순회
             const processNode = (node) => {
                 if (node.nodeType === Node.TEXT_NODE) {
-                    // 텍스트 노드를 span으로 대체
-                    const tempDiv = doc.createElement('div');
-                    tempDiv.innerHTML = node.textContent.replace(regex, replaceText);
-                    // 새로 생성된 노드들로 교체
-                    Array.from(tempDiv.childNodes).forEach(newNode => {
-                        node.parentNode.insertBefore(newNode, node);
-                    });
-                    node.parentNode.removeChild(node);
+                    // 텍스트 노드 안에서만 치환
+                    if (regex.test(node.textContent)) {
+                        // 새 span 노드로 치환 (원래 텍스트를 대체)
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = node.textContent.replace(regex, replaceText);
+                        Array.from(tempDiv.childNodes).forEach(newNode => {
+                            node.parentNode.insertBefore(newNode, node);
+                        });
+                        node.parentNode.removeChild(node);
+                    }
                 }
                 else if (node.nodeType === Node.ELEMENT_NODE) {
                     // 속성 처리 (URL 속성은 제외)
@@ -475,18 +465,19 @@ class TextFilter extends Filter {
                             attr.value = attr.value.replace(regex, replaceText);
                         }
                     });
+                    // 자식 노드 재귀 처리
                     Array.from(node.childNodes).forEach(processNode);
                 }
             };
 
-            processNode(doc.body);
-            result = new XMLSerializer().serializeToString(doc);
+            // 실제 DOM의 body(또는 원하는 영역)에서 시작
+            processNode(document.body);
+
         } catch (error) {
             console.error(`Error processing "${filterTargetStr}":`, error);
         }
-
-        return result;
     }
+
 }
 
 class StrategyTextFilteringMethod {
@@ -722,14 +713,10 @@ class FilteringHandler {
     }
 
     async HandleOnTextFilterSTC(originPagehtml, data) {
-        let result = originPagehtml;
-
         for (const filterTargetStr of data.words) {
             if (!filterTargetStr?.trim()) continue;
-            result = this.#textFilter.GetFilteredCode(result, filterTargetStr, data);
+            this.#textFilter.GetFilteredCode(filterTargetStr, data);
         }
-
-        document.body.innerHTML = result;
     }
 
     /**
@@ -738,14 +725,10 @@ class FilteringHandler {
      * @param {number} statusCode - The status code from the server
      */
     HandleOnImageFilterSTC(originPagehtml, data) {
-        let result = originPagehtml;
-        
         for (const filterTargetStr of data.urls) {
             if (!filterTargetStr?.trim()) continue;
-            result = this.#imageFilter.GetFilteredCode(result, filterTargetStr, data);
+            this.#imageFilter.GetFilteredCode(filterTargetStr, data);
         }
-
-        document.body.innerHTML = result;
     }
 
     /**
