@@ -710,9 +710,9 @@ class FilteringHandler {
             if (imageFilterType === 1) {
                 this.#imageFilter.SetStrategyImageFilteringMethod(new StrategeImageReplace());
             } else if (imageFilterType === 2) {
-                this.#imageFilter.SetStrategyTextFilteringMethod(new StrategeImageReplaceByServerValue());
+                this.#imageFilter.SetStrategyImageFilteringMethod(new StrategeImageReplaceByServerValue());
             } else if (imageFilterType === 3) {
-                this.#imageFilter.SetStrategyTextFilteringMethod(new StrategeImageReplaceByServerValue());
+                this.#imageFilter.SetStrategyImageFilteringMethod(new StrategeImageReplaceByServerValue());
             } else {
                 this.#imageFilter.SetStrategyImageFilteringMethod(new StrategeImageReplace());
             }
@@ -737,9 +737,10 @@ class FilteringHandler {
      * @param {string} filteredImageURL - The filtered image URL from the server
      * @param {number} statusCode - The status code from the server
      */
-    HandleOnImageFilterSTC(originPagehtml, filteredText, data) {
+    HandleOnImageFilterSTC(originPagehtml, data) {
         let result = originPagehtml;
-        for (const filterTargetStr of filteredText) {
+        
+        for (const filterTargetStr of data.urls) {
             if (!filterTargetStr?.trim()) continue;
             result = this.#imageFilter.GetFilteredCode(result, filterTargetStr, data);
         }
