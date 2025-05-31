@@ -786,7 +786,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 ///////////////////////////////////////
-const knownWords = new Set();
 const knownImages = new Set();
 const sendWordList = [];
 const sendImgList = [];
@@ -810,17 +809,12 @@ function extractNewWordsFromText(text) {
         const cleanWord = word.replace(/[^\p{L}\p{N}]/gu, "");
         if (
             cleanWord &&
-            !knownWords.has(cleanWord) &&
             !/^\d+$/.test(cleanWord) &&       // 숫자 제외
             !isGarbageWord(cleanWord)         // 쓰레기 단어 제외
         ) {
-            knownWords.add(cleanWord);
             sendWordList.push(cleanWord);
         }
     });
-
-    // 서버로 result 전송
-
 }
 
 function extractImageFromNode(node) {
@@ -901,6 +895,7 @@ const observerCallback = (mutationsList) => {
             sendImgList.length = 0;
         }
         if (sendWordList.length > 0) {
+            console.log(sendWordList);
             const filteringType = result.censorMethod ?? 1;
             chrome.runtime.sendMessage({
                 type: "PAGE_TEXT",
