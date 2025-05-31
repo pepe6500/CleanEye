@@ -1,5 +1,5 @@
 const textServerURL = "http://43.201.18.93:8080/api/text/analyze";
-const imageServerURL = "http://ec2-13-124-181-154.ap-northeast-2.compute.amazonaws.com:8000/detect";
+const imageServerURL = "http://ec2-15-164-134-227.ap-northeast-2.compute.amazonaws.com:8000/detect";
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === "PAGE_TEXT") {
