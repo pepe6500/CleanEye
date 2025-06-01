@@ -1,48 +1,121 @@
+/* 기본 페이지 설정 */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f4f4f4;
+  background-color: #f0f2f5;
   margin: 0;
-  padding: 16px;
-  width: 300px;
+  padding: 20px;
+  width: 320px;
   box-sizing: border-box;
-}
-
-h2 {
-  margin-top: 0;
-  font-size: 18px;
   color: #333;
 }
 
-.section {
-  margin-top: 16px;
+/* 제목 */
+h2 {
+  margin-top: 0;
+  font-size: 18px;
+  color: #222;
+  margin-bottom: 12px;
 }
 
+/* 섹션 */
+.section {
+  margin-top: 20px;
+}
+
+/* 라벨 */
 label {
   font-size: 14px;
-  font-weight: bold;
+  font-weight: 600;
   display: block;
   margin-bottom: 6px;
+  color: #444;
 }
 
+/* select 및 슬라이더 기본 스타일 */
 select,
 input[type="range"] {
   width: 100%;
-  padding: 6px;
   font-size: 14px;
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  box-sizing: border-box;
 }
 
+/* 슬라이더 컨테이너 (overflow 숨김으로 thumb 잘림 방지) */
+.slider-container {
+  overflow: hidden;
+}
+
+/* 슬라이더 트랙 */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  background: #ddd;
+  border: none;
+  margin: 0;
+  padding: 0;
+  border-radius: 3px;
+  box-sizing: content-box;
+}
+
+/* 슬라이더 thumb - Chrome/Safari/Edge */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #007bff;
+  border-radius: 50%;
+  cursor: pointer;
+  margin-top: -5px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.2);
+  transition: background 0.3s;
+}
+
+/* 슬라이더 thumb - Firefox */
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #007bff;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+/* 슬라이더 트랙 - Firefox */
+input[type="range"]::-moz-range-track {
+  background: #ddd;
+  height: 6px;
+  border-radius: 3px;
+}
+
+/* 슬라이더 thumb - IE/Edge */
+input[type="range"]::-ms-thumb {
+  width: 16px;
+  height: 16px;
+  background: #007bff;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* 슬라이더 라벨 */
 .slider-label {
   font-size: 14px;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
+/* 유해도 수치 */
 #harmLevelValue {
   font-weight: bold;
 }
 
+/* 유해도 텍스트 */
 #harmLevelText {
   font-size: 13px;
   font-weight: bold;
@@ -50,35 +123,39 @@ input[type="range"] {
 }
 
 .level-low {
-  color: green;
+  color: #2ecc71;
 }
 
 .level-medium {
-  color: orange;
+  color: #f39c12;
 }
 
 .level-high {
-  color: red;
+  color: #e74c3c;
 }
 
+/* 출력 결과 박스 */
 #exampleOutput {
-  margin-top: 10px;
+  margin-top: 12px;
   background: white;
-  padding: 10px;
+  padding: 12px;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
 
+/* 블러 텍스트 처리 */
 .blurred {
   color: transparent;
   text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
   user-select: none;
 }
 
+/* 작은 안내 문구 */
 .small-note {
   font-size: 12px;
-  color: #555;
-  margin-top: 6px;
-  line-height: 1.4;
+  color: #666;
+  margin-top: 8px;
+  line-height: 1.5;
 }
