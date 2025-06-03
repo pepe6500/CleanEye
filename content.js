@@ -803,9 +803,9 @@ function isGarbageWord(word) {
 }
 
 function extractNewWordsFromText(text) {
-    const words = text.trim().split(/\s+/);
+    const words = text.trim().split(/[\n\t()-]+/);
     words.forEach(word => {
-        const cleanWord = word.replace(/[^\p{L}\p{N}!@#$%^&*_+\-=~\\|,.<>\/?]/gu, ""); // 특수문자도 처리가능하도록 수정함.
+        const cleanWord = word.replace(/[^\p{L}\p{N} !@#$%^&*_+\-=~\\|,.<>\/?]/gu, ""); // 특수문자도 처리가능하도록 수정함.
         if (
             cleanWord &&
             !/^\d+$/.test(cleanWord) &&       // 숫자 제외
