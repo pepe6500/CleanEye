@@ -445,6 +445,10 @@ class TextFilter extends Filter {
             // 재귀적으로 실제 DOM을 순회
             const processNode = (node) => {
                 if (node.nodeType === Node.TEXT_NODE) {
+                    // 부모가 SPAN이면 치환하지 않음
+                    if (node.parentNode && node.parentNode.tagName === "SPAN") {
+                        return;
+                    }
                     // 텍스트 노드 안에서만 치환
                     if (regex.test(node.textContent)) {
                         // 새 span 노드로 치환 (원래 텍스트를 대체)
@@ -506,7 +510,7 @@ class StrategeTextReplace extends StrategyTextFilteringMethod {
      * @type {string}
      * @readonly
      */
-    #replaceText = "***";
+    #replaceText = "<span>***</span>";
 
     /**
      * Create a new StrategeTextReplace instance
@@ -602,7 +606,7 @@ class StrategeTextReplaceByServerValue extends StrategyTextFilteringMethod {
         var i;
         for (i = 0; i < data.words.length; i++) {
             if (data.words[i] == filterTargetStr) {
-                return data.filteredWords[i];
+                return "<span>" + data.filteredWords[i] + "</span>";
             }
         }
         return "";
@@ -801,7 +805,7 @@ function isGarbageWord(word) {
 function extractNewWordsFromText(text) {
     const words = text.trim().split(/\s+/);
     words.forEach(word => {
-        const cleanWord = word.replace(/[^\p{L}\p{N}]/gu, "");
+        const cleanWord = word.replace(/[^\p{L}\p{N}!@#$%^&*_+\-=~\\|,.<>\/?]/gu, ""); // 특수문자도 처리가능하도록 수정함.
         if (
             cleanWord &&
             !/^\d+$/.test(cleanWord) &&       // 숫자 제외
@@ -847,6 +851,10 @@ function extractTextFromNode(node) {
             style.filter.includes("blur")
         ) {
             return; // 취소선, 블러 텍스트 무시
+        }
+        else if (parent.tagName === "SPAN")
+        {
+            return; // AI 표현 적용된 것 중복으로 서버로 보내지 않게 무시
         }
 
         if (isVisible) {
