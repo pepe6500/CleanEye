@@ -446,17 +446,21 @@ class TextFilter extends Filter {
             const processNode = (node) => {
                 if (node.nodeType === Node.TEXT_NODE) {
                     // 부모가 SPAN이면 치환하지 않음
-                    if (node.parentNode && node.parentNode.tagName === "SPAN") {
+
+                    
+                    if (node.parentNode && node.parentNode.tagName === "SPAN" && (node.parentNode.id === "cleanEye" || node.parentNode.parentNode.id === "cleanEye")) {
                         return;
                     }
                     // 텍스트 노드 안에서만 치환
                     if (regex.test(node.textContent)) {
                         // 새 span 노드로 치환 (원래 텍스트를 대체)
-                        const tempDiv = document.createElement('div');
+                        const tempDiv = document.createElement('span');
+                        tempDiv.id = "cleanEye";
                         tempDiv.innerHTML = node.textContent.replace(regex, replaceText);
-                        Array.from(tempDiv.childNodes).forEach(newNode => {
-                            node.parentNode.insertBefore(newNode, node);
-                        });
+                        node.parentNode.insertBefore(tempDiv, node);
+                        // Array.from(tempDiv.childNodes).forEach(newNode => {
+                        //     node.parentNode.insertBefore(newNode, node);
+                        // });
                         node.parentNode.removeChild(node);
                     }
                 }
@@ -852,7 +856,7 @@ function extractTextFromNode(node) {
         ) {
             return; // 취소선, 블러 텍스트 무시
         }
-        else if (parent.tagName === "SPAN")
+        else if (parent.tagName === "SPAN" && (node.parentNode.id === "cleanEye" || node.parentNode.parentNode.id === "cleanEye"))
         {
             return; // AI 표현 적용된 것 중복으로 서버로 보내지 않게 무시
         }
